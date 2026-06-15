@@ -9,6 +9,20 @@ A lightweight, zero-bloat WordPress plugin that uses AI (Google Gemini or OpenAI
 * **Dynamic Model Selection:** Automatically fetches and selects the best lightweight/fast model available (e.g., `gemini-flash-lite-latest` or `gpt-4o-mini`) during the API test phase.
 * **Supports Multiple Providers:** Works with both Google Gemini and OpenAI (ChatGPT) APIs.
 
+## 📸 Screenshots
+
+**1. Settings & API Connection**
+Configure your AI provider, inject your project scope, and test your connection instantly.
+![AI Image Rename Settings](https://guilhemf.com/ai-image-rename/screenshot-1.png)
+
+**2. Before Optimization**
+The new AI button sits seamlessly in your native WordPress Media Library.
+![Media Library Before](https://guilhemf.com/ai-image-rename/screenshot-2.png)
+
+**3. After Optimization**
+In one click, the physical file is renamed and the SEO Alt text is generated based on your custom scope.
+![Media Library After](https://guilhemf.com/ai-image-rename/screenshot-3.png)
+
 ---
 
 ## ⚙️ How It Works (Technical Flow)

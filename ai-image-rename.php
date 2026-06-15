@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: AI Image Rename
- * Description: Optimize image SEO (Title and Alt text) via AI directly from the media library.
+ * Description: Optimize your image SEO (Filenames and Alt texts) via AI (OpenAI or Google Gemini) directly from the WordPress media library in one click.
  * Version: 1.0
  * Author: GuilhemF
  * Author URI: https://guilhemf.com
@@ -83,7 +83,7 @@ function ai_ir_api_key_render() {
 
 function ai_ir_project_scope_render() {
     $scope = get_option('ai_ir_project_scope');
-    echo "<textarea name='ai_ir_project_scope' rows='5' style='width: 100%; max-width: 400px;' placeholder='Ex: Context: Site of uNopia...'>" . esc_textarea($scope) . "</textarea>";
+    echo "<textarea name='ai_ir_project_scope' rows='5' style='width: 100%; max-width: 400px;' placeholder='Ex: Context: Niche perfume e-shop. Target: Young audience...'>" . esc_textarea($scope) . "</textarea>";
     echo "<p class='description'>This text provides context to the AI for generating SEO-friendly titles and alt tags.</p>";
 }
 
@@ -152,6 +152,44 @@ function ai_ir_options_page_html() {
             });
         });
         </script>
+
+        <?php //Debug info ?>
+        <?php /* ?>
+        <hr style="margin: 40px 0 20px 0;">
+        <div style="background: #f0f0f1; border: 1px solid #c3c4c7; padding: 15px; max-width: 600px;">
+            <h3 style="margin-top: 0;">🛠️ Debug: Database Values</h3>
+            <table class="form-table" role="presentation" style="margin-top: 0;">
+                <tbody>
+                    <tr>
+                        <th scope="row" style="padding: 10px 0;"><strong>Active Provider</strong></th>
+                        <td style="padding: 10px 0;"><code><?php echo esc_html(get_option('ai_ir_api_provider', 'Not set')); ?></code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="padding: 10px 0;"><strong>Connection Status</strong></th>
+                        <td style="padding: 10px 0;"><code><?php echo esc_html(get_option('ai_ir_api_connected', '0')); ?></code> <em>(1 = Connected, 0 = Disconnected)</em></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="padding: 10px 0;"><strong>Saved OpenAI Model</strong></th>
+                        <td style="padding: 10px 0;"><code><?php echo esc_html(get_option('ai_ir_openai_model', 'Not set')); ?></code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="padding: 10px 0;"><strong>Saved Gemini Model</strong></th>
+                        <td style="padding: 10px 0;"><code><?php echo esc_html(get_option('ai_ir_gemini_model', 'Not set')); ?></code></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="padding: 10px 0;"><strong>API Key Length</strong></th>
+                        <td style="padding: 10px 0;">
+                            <?php 
+                            $key = get_option('ai_ir_api_key', '');
+                            echo $key ? '<code>' . strlen($key) . ' characters</code> (Hidden for security)' : '<code>Empty</code>'; 
+                            ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        */  ?>
+
     </div>
     <?php
 }
@@ -366,7 +404,7 @@ function ai_ir_process_image_callback() {
     $base64_image = base64_encode(file_get_contents($file_path));
 
     // 2. Prepare Prompt
-    $prompt = "Context: $scope. Analyze this image. Return ONLY a valid JSON object with two keys: 'title' (a short, descriptive, SEO-friendly filename, lowercase, words separated by hyphens, no file extension) and 'alt' (a descriptive SEO alt text for the image). Do NOT wrap the JSON in markdown code blocks. Just return the raw JSON.";
+    $prompt = "Context: $scope. Analyze this image. Return ONLY a valid JSON object with two keys: 'title' (a short, descriptive, SEO-friendly filename, lowercase, words separated by hyphens, no file extension) and 'alt' (a descriptive SEO alt text for the image, maximum 100 characters). Do NOT wrap the JSON in markdown code blocks. Just return the raw JSON.";
 
     $response_text = '';
 
