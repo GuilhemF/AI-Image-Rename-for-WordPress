@@ -2,6 +2,8 @@
 node_modules/
 vendor/
 ai-image-rename/
+bk/
+wp/
 
 # Build Output
 dist/
@@ -9,6 +11,7 @@ dist/
 
 # System Files
 .DS_Store
+.serena/
 Thumbs.db
 *.log
 

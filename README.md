@@ -67,7 +67,7 @@ To keep the codebase simple and the execution lightning-fast, a few deliberate a
 
 This plugin was built with a "Simplicity First" mindset. However, there is plenty of room for contributions! Here are some great starting points for future pull requests:
 
-* **Add Anthropic (Claude) Support:** Integrate the Claude 3 Haiku / Sonnet Vision API.
+* **More AI Providers:** Upcoming support for Anthropic (Claude) and Mistral AI models.
 * **Preview Modal:** Add an optional toggle in the settings to show a preview modal allowing the user to edit the AI-generated JSON before applying the physical rename.
 * **Bulk Actions:** Add support for WordPress bulk actions to process multiple images sequentially from the List View.
 * **Regenerate Thumbnails Hook:** Trigger a native WordPress thumbnail regeneration after the main file is renamed.
