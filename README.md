@@ -1,13 +1,14 @@
 # AI Image Rename for WordPress
 
-A lightweight, zero-bloat WordPress plugin that uses AI (Google Gemini or OpenAI) to automatically analyze your images and generate SEO-optimized filenames and `alt` tags directly from the WordPress Media Library.
+A lightweight, zero-bloat WordPress plugin that uses AI (Google Gemini, OpenAI, or Claude) to automatically analyze your images and generate SEO-optimized filenames and `alt` tags directly from the WordPress Media Library.
 
 ## 🚀 Features
 
 * **Context-Aware AI:** Provide a global "Project Scope" in the settings (e.g., "High-end perfume online store") so the AI generates highly relevant SEO tags.
 * **1-Click Execution:** No confirmation modals, no extra steps. Click the button, and the image is renamed instantly.
-* **Dynamic Model Selection:** Automatically fetches and selects the best lightweight/fast model available (e.g., `gemini-flash-lite-latest` or `gpt-4o-mini`) during the API test phase.
-* **Supports Multiple Providers:** Works with both Google Gemini and OpenAI (ChatGPT) APIs.
+* **Dynamic Model Selection:** Automatically fetches and selects the best lightweight/fast model available (e.g., `gemini-flash-lite-latest`, `gpt-4o-mini`, or `claude-haiku-4-5`) during the API test phase.
+* **Supports Multiple Providers:** Works with Google Gemini, OpenAI (ChatGPT), and Claude (Anthropic) APIs.
+* **Instant UI Refresh:** Title, alt text, filename, and URL update live in the Media Library (List view, Grid view, and the Attachment Details modal) — no page reload needed.
 
 ## 📸 Screenshots
 
@@ -39,6 +40,7 @@ When a user clicks the "AI Image Rename" button:
 * **Strict JSON Parsing:** The AI is prompted to return a raw JSON object containing only a sanitized `title` and an `alt` description.
 * **Database & File Update:** The plugin updates the WordPress attachment metadata (`post_title`, `post_name`, `_wp_attachment_image_alt`) and physically renames the base file on the server.
 * **Conflict Resolution:** If a file with the new name already exists, the plugin automatically appends a timestamp (`Ymd_His`) to prevent overwriting.
+* **Live UI Sync:** The new title, alt text, filename, and file URL are reflected instantly in the Media Library and in the open Attachment Details modal, without requiring a page refresh.
 
 ---
 
@@ -56,7 +58,7 @@ To keep the codebase simple and the execution lightning-fast, a few deliberate a
 1. Download or clone this repository into your `/wp-content/plugins/` directory.
 2. Activate the **AI Image Rename** plugin through the 'Plugins' menu in WordPress.
 3. Navigate to **Settings > AI Image Rename**.
-4. Select your AI Provider (Gemini or OpenAI) and enter your API Key.
+4. Select your AI Provider (Gemini, OpenAI, or Claude) and enter your API Key.
 5. Write a short **Project Scope** to guide the AI.
 6. Click **Save Settings**, then **Test API Connection**.
 7. Go to your Media Library and click the new blue button on any image!
@@ -67,7 +69,7 @@ To keep the codebase simple and the execution lightning-fast, a few deliberate a
 
 This plugin was built with a "Simplicity First" mindset. However, there is plenty of room for contributions! Here are some great starting points for future pull requests:
 
-* **More AI Providers:** Upcoming support for Anthropic (Claude) and Mistral AI models.
+* **More AI Providers:** Upcoming support for Mistral AI models.
 * **Preview Modal:** Add an optional toggle in the settings to show a preview modal allowing the user to edit the AI-generated JSON before applying the physical rename.
 * **Bulk Actions:** Add support for WordPress bulk actions to process multiple images sequentially from the List View.
 * **Regenerate Thumbnails Hook:** Trigger a native WordPress thumbnail regeneration after the main file is renamed.

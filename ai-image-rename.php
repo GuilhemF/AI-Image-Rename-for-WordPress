@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Imaxio SEO Image Renamer and Alt Text
- * Description: Optimize your image SEO (Filenames and Alt texts) via AI (OpenAI or Google Gemini) directly from the WordPress media library in one click.
+ * Description: Optimize your image SEO (Filenames and Alt texts) via AI (OpenAI, Google Gemini, or Claude) directly from the WordPress media library in one click.
  * Version: 1.0
  * Author: GuilhemF
  * Author URI: https://guilhemf.com
@@ -72,8 +72,9 @@ function imaxio_irat_api_provider_render() {
     $provider = get_option('imaxio_irat_api_provider', 'gemini');
     ?>
     <select name="imaxio_irat_api_provider" id="imaxio_irat_api_provider">
-        <option value="gemini" <?php selected($provider, 'gemini'); ?>>Google Gemini</option>
-        <option value="openai" <?php selected($provider, 'openai'); ?>>OpenAI (ChatGPT)</option>
+        <option value="gemini" <?php selected($provider, 'gemini'); ?>>Gemini (Google)</option>
+        <option value="openai" <?php selected($provider, 'openai'); ?>>ChatGPT (OpenAI)</option>
+        <option value="claude" <?php selected($provider, 'claude'); ?>>Claude (Anthropic)</option>
     </select>
     <?php
 }
@@ -214,7 +215,8 @@ function imaxio_irat_enqueue_admin_scripts($hook) {
                                         attachment.set({
                                             title: data.data.new_title,
                                             alt: data.data.new_alt,
-                                            url: data.data.new_url
+                                            url: data.data.new_url,
+                                            filename: data.data.new_filename
                                         });
                                     }
                                 }
@@ -225,6 +227,36 @@ function imaxio_irat_enqueue_admin_scripts($hook) {
                         if (row) {
                             var titleLink = row.querySelector('.column-title strong a');
                             if (titleLink) { titleLink.textContent = data.data.new_title; }
+
+                            var filenameP = row.querySelector('.filename');
+                            if (filenameP) {
+                                var srSpan = filenameP.querySelector('.screen-reader-text');
+                                if (srSpan && srSpan.nextSibling) {
+                                    srSpan.nextSibling.textContent = ' ' + data.data.new_filename;
+                                }
+                            }
+                        }
+
+                        var infoPanel = btn.closest('.attachment-info');
+                        if (infoPanel) {
+                            var titleField = infoPanel.querySelector('[data-setting=\"title\"] input, [data-setting=\"title\"] textarea');
+                            if (titleField) { titleField.value = data.data.new_title; }
+
+                            var altField = infoPanel.querySelector('[data-setting=\"alt\"] textarea');
+                            if (altField) { altField.value = data.data.new_alt; }
+
+                            var urlField = infoPanel.querySelector('[data-setting=\"url\"] input');
+                            if (urlField) { urlField.value = data.data.new_url; }
+
+                            var filenameDiv = infoPanel.querySelector('.filename');
+                            if (filenameDiv) {
+                                var strongEl = filenameDiv.querySelector('strong');
+                                if (strongEl && strongEl.nextSibling) {
+                                    strongEl.nextSibling.textContent = ' ' + data.data.new_filename;
+                                } else if (!strongEl) {
+                                    filenameDiv.textContent = data.data.new_filename;
+                                }
+                            }
                         }
 
                         var postTitleInput = document.getElementById('title');
@@ -328,6 +360,49 @@ function imaxio_irat_test_api_callback() {
         } else {
             update_option('imaxio_irat_api_connected', 0);
             wp_send_json_error(['message' => 'OpenAI Error: Invalid API Key.']);
+        }
+
+    } elseif ($api_provider === 'claude') {
+        $url = 'https://api.anthropic.com/v1/models';
+        $args = ['headers' => [
+            'x-api-key' => $api_key,
+            'anthropic-version' => '2023-06-01'
+        ]];
+        $response = wp_remote_get($url, $args);
+
+        if (is_wp_error($response)) {
+            update_option('imaxio_irat_api_connected', 0);
+            wp_send_json_error(['message' => 'HTTP Error: ' . $response->get_error_message()]);
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        if ($status_code === 200) {
+            update_option('imaxio_irat_api_connected', 1);
+
+            $selected_model = 'claude-haiku-4-5';
+            if (isset($data['data']) && is_array($data['data'])) {
+                $available_models = array_column($data['data'], 'id');
+                if (!in_array($selected_model, $available_models)) {
+                    $haiku_models = array_values(array_filter($available_models, function($id) {
+                        return strpos($id, 'haiku') !== false;
+                    }));
+                    if (!empty($haiku_models)) {
+                        rsort($haiku_models);
+                        $selected_model = $haiku_models[0];
+                    } elseif (!empty($available_models)) {
+                        $selected_model = $available_models[0];
+                    }
+                }
+            }
+            update_option('imaxio_irat_claude_model', $selected_model);
+
+            wp_send_json_success(['message' => 'Success! Connected to Claude. Auto-selected model: ' . $selected_model]);
+        } else {
+            update_option('imaxio_irat_api_connected', 0);
+            wp_send_json_error(['message' => 'Claude Error: Invalid API Key.']);
         }
     }
 }
@@ -468,6 +543,48 @@ function imaxio_irat_process_image_callback() {
         if (isset($data['error'])) wp_send_json_error(['message' => 'AI Error: ' . $data['error']['message']]);
         
         $response_text = $data['choices'][0]['message']['content'] ?? '';
+
+    } elseif ($api_provider === 'claude') {
+        $claude_model = get_option('imaxio_irat_claude_model', 'claude-haiku-4-5');
+        $url = 'https://api.anthropic.com/v1/messages';
+
+        $body = [
+            'model' => $claude_model,
+            'max_tokens' => 1024,
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => [
+                        ['type' => 'text', 'text' => $prompt],
+                        ['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $mime_type, 'data' => $base64_image]]
+                    ]
+                ]
+            ]
+        ];
+
+        $response = wp_remote_post($url, [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'x-api-key' => $api_key,
+                'anthropic-version' => '2023-06-01'
+            ],
+            'body' => json_encode($body),
+            'timeout' => 30
+        ]);
+
+        if (is_wp_error($response)) wp_send_json_error(['message' => 'API Request failed: ' . $response->get_error_message()]);
+
+        $data = json_decode(wp_remote_retrieve_body($response), true);
+        if (isset($data['error'])) wp_send_json_error(['message' => 'AI Error: ' . $data['error']['message']]);
+
+        if (isset($data['content']) && is_array($data['content'])) {
+            foreach ($data['content'] as $block) {
+                if (isset($block['type']) && $block['type'] === 'text') {
+                    $response_text = $block['text'];
+                    break;
+                }
+            }
+        }
     }
 
     $response_text = preg_replace('/```json|
@@ -509,5 +626,11 @@ function imaxio_irat_process_image_callback() {
         }
     }
 
-    wp_send_json_success(['message' => 'Success']);
+    wp_send_json_success([
+        'message' => 'Success',
+        'new_title' => $new_title,
+        'new_alt' => $new_alt,
+        'new_url' => wp_get_attachment_url($post_id),
+        'new_filename' => wp_basename($new_file_path)
+    ]);
 }

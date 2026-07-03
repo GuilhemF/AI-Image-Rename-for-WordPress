@@ -6,9 +6,6 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 ## Project
 
-Ecommerce site for a premium magazine/blog. Target: Awwwards nomination.
-Priorities: optimized code, Lighthouse 100, strong SEO.
-
 **CSS over JS** — prefer CSS for animations, transitions, hover states,
 toggles (details/summary, :has(), @starting-style). JS only when CSS
 can't do it. Rationale: better SEO, no layout shift, no hydration cost.
