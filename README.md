@@ -2,6 +2,8 @@
 
 A lightweight, zero-bloat WordPress plugin that uses AI (Google Gemini, OpenAI, or Claude) to automatically analyze your images and generate SEO-optimized filenames and `alt` tags directly from the WordPress Media Library.
 
+Available on the official WordPress Plugin Directory: https://wordpress.org/plugins/imaxio-seo-image-renamer-alt-text/
+
 ## 🚀 Features
 
 * **Context-Aware AI:** Provide a global "Project Scope" in the settings (e.g., "High-end perfume online store") so the AI generates highly relevant SEO tags.

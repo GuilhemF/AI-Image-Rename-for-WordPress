@@ -15,6 +15,7 @@ dist/
 .claude/
 Thumbs.db
 *.log
+SVN.MD
 
 # IDE
 .idea/
