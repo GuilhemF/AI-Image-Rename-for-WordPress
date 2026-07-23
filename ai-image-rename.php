@@ -311,7 +311,7 @@ function imaxio_irat_test_api_callback() {
             if (isset($data['models']) && is_array($data['models'])) {
                 $flash_models = [];
                 foreach ($data['models'] as $model) {
-                    if (strpos($model['name'], 'flash') !== false && isset($model['supportedGenerationMethods']) && in_array('generateContent', $model['supportedGenerationMethods'])) {
+                    if (strpos($model['name'], 'flash') !== false && strpos($model['name'], 'omni') === false && strpos($model['name'], 'preview') === false && isset($model['supportedGenerationMethods']) && in_array('generateContent', $model['supportedGenerationMethods'])) {
                         $flash_models[] = str_replace('models/', '', $model['name']);
                     }
                 }
